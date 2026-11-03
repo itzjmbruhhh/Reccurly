@@ -1,0 +1,59 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+@import "nativewind/theme";
+
+@theme {
+    --color-background: #fff9e3;
+    --color-foreground: #081126;
+    --color-card: #fff8e7;
+    --color-muted: #f6eecf;
+    --color-muter-foreground: rgba(0, 0, 0, 0.6);
+    --color-primary: #081126;
+    --color-accent: #ea7a53;
+    --color-border: rgba(0, 0, 0, 0.1);
+    --color-sucess: #16a34a;
+    --color-destructive: #dc2626;
+    --color-subscription: #8fd1bd;
+
+    --spacing-0: 0rem;
+    --spacing-1: 0.25rem;
+    --spacing-2: 0.5rem;
+    --spacing-3: 0.75rem;
+    --spacing-4: 1rem;
+    --spacing-5: 1.25rem;
+    --spacing-6: 1.5rem;
+    --spacing-7: 1.75rem;
+    --spacing-8: 2rem;
+    --spacing-9: 2.25rem;
+    --spacing-10: 2.5rem;
+    --spacing-11: 2.75rem;
+    --spacing-12: 3rem;
+    --spacing-14: 3.5rem;
+    --spacing-16: 4rem;
+    --spacing-18: 4.5rem;
+    --spacing-20: 5rem;
+    --spacing-24: 6rem;
+    --spacing-30: 7.5rem;
+
+
+}
+
+@layer components {
+    .tabs-icon {
+        @apply size-12 items-center justify-center;
+    }
+
+    .tabs-pill {
+        @apply size-12 items-center justify-center rounded-full bg-transparent;
+    }
+
+    .tabs-active {
+        @apply bg-accent;
+    }
+
+    .tabs-glyph {
+        @apply size-6;
+    }
+}
