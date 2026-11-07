@@ -9,7 +9,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
 
-  const [fontsLoaded, fontError] = useFonts({
+  const [fontsLoaded] = useFonts({
     'sans-regular': require('../../assets/fonts/PlusJakartaSans-Regular.ttf'),
     'sans-bold': require('../../assets/fonts/PlusJakartaSans-Bold.ttf'),
     'sans-medium': require('../../assets/fonts/PlusJakartaSans-Medium.ttf'),
@@ -19,16 +19,12 @@ export default function RootLayout() {
   })
 
   useEffect(() => {
-    if (fontError) {
-      console.error("Failed to load fonts:", fontError);
-    }
-
-    if (fontsLoaded || fontError) {
+    if (fontsLoaded) {
       SplashScreen.hideAsync()
     }
-  }, [fontsLoaded, fontError])
+  }, [fontsLoaded])
 
-  if (!fontsLoaded && !fontError) return null;
+  if (!fontsLoaded) return null;
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }
