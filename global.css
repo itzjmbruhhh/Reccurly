@@ -37,7 +37,12 @@
     --spacing-24: 6rem;
     --spacing-30: 7.5rem;
 
-
+    --font-sans: sans-regular;
+    --font-sans-light: sans-light;
+    --font-sans-medium: sans-medium;
+    --font-sans-semibold: sans-semibold;
+    --font-sans-bold: sans-bold;
+    --font-sans-extrabold: sans-extrabold;
 }
 
 @layer components {
