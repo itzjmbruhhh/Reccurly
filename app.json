@@ -45,7 +45,8 @@
             "./assets/fonts/PlusJakartaSans-Light.ttf"
           ]
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
