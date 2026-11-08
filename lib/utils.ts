@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export function formatCurrency(value: number, currency = "PHP"): string {
   try {
     return new Intl.NumberFormat("en-PH", {
@@ -10,3 +12,14 @@ export function formatCurrency(value: number, currency = "PHP"): string {
     return `₱${value.toFixed(2)}`;
   }
 }
+
+export const formatSubscriptionDateTime = (value?: string): string => {
+  if (!value) return "Not provided";
+  const parsedDate = dayjs(value);
+  return parsedDate.isValid() ? parsedDate.format("MM/DD/YYYY") : "Not Provided";
+}
+
+export const formatStatusLabel = (value?: string): string => {
+  if (!value) return "Unknown";
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
