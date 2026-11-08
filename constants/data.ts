@@ -9,7 +9,7 @@ export const tabs = [
 
 // Dummy data to display on home page
 export const HOME_USER = {
-  name: "Adrian | JS Mastery",
+  name: "ItzJMBruhhh",
 };
 
 export const HOME_BALANCE = {
