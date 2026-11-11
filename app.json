@@ -46,7 +46,9 @@
           ]
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "@clerk/expo",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
