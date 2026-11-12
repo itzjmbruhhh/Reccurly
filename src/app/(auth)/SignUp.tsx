@@ -2,6 +2,7 @@ import { useSignUp } from "@clerk/expo";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { usePostHog } from "posthog-react-native";
 import AuthButton from "@/components/AuthButton";
 import AuthField from "@/components/AuthField";
 import AuthScreen from "@/components/AuthScreen";
@@ -10,6 +11,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignUp() {
   const { signUp } = useSignUp();
+  const posthog = usePostHog();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -48,6 +50,7 @@ export default function SignUp() {
         setFormError(sendError.longMessage || sendError.message || "We couldn’t send your verification code. Try again shortly.");
         return;
       }
+      posthog?.capture("sign_up_verification_sent");
       setVerificationStep(true);
       setNotice(`We sent a verification code to ${cleanEmail}.`);
     } catch (error) {
@@ -76,6 +79,7 @@ export default function SignUp() {
       if (finalizeError) {
         setFormError(finalizeError.longMessage || finalizeError.message || "Your email is verified, but we couldn’t start your session. Try again.");
       } else {
+        posthog?.capture("account_created");
         router.replace("/(tabs)");
       }
     } catch (error) {

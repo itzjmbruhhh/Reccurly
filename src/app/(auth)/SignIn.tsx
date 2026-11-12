@@ -2,6 +2,7 @@ import { useSignIn } from "@clerk/expo";
 import { router, Link } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { usePostHog } from "posthog-react-native";
 import AuthButton from "@/components/AuthButton";
 import AuthField from "@/components/AuthField";
 import AuthScreen from "@/components/AuthScreen";
@@ -11,6 +12,7 @@ type MfaStrategy = "email_code" | "phone_code" | "totp" | "backup_code";
 
 export default function SignIn() {
   const { signIn } = useSignIn();
+  const posthog = usePostHog();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -75,7 +77,13 @@ export default function SignIn() {
       if (signIn.status === "complete") {
         const { error } = await signIn.finalize();
         if (error) setFormError(error.longMessage ?? "We couldn’t start your session. Please try again.");
-        else router.replace("/(tabs)");
+        else {
+          posthog?.capture("signed_in", {
+            authentication_method: "mfa",
+            mfa_strategy: mfaStrategy,
+          });
+          router.replace("/(tabs)");
+        }
       } else {
         setFormError("We couldn’t complete verification. Try another method or request a new code.");
       }
@@ -105,6 +113,7 @@ export default function SignIn() {
         if (finalizeError) {
           setFormError(finalizeError.longMessage ?? "Your account was verified, but we couldn’t start your session. Try again.");
         } else {
+          posthog?.capture("signed_in", { authentication_method: "password" });
           router.replace("/(tabs)");
         }
       } else if (signIn.status === "needs_second_factor" || signIn.status === "needs_client_trust") {
