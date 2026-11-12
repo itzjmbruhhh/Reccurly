@@ -2,6 +2,7 @@ import { useSignIn } from "@clerk/expo";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { usePostHog } from "posthog-react-native";
 import AuthButton from "@/components/AuthButton";
 import AuthField from "@/components/AuthField";
 import AuthScreen from "@/components/AuthScreen";
@@ -10,6 +11,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ForgotPassword() {
   const { signIn } = useSignIn();
+  const posthog = usePostHog();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -43,6 +45,7 @@ export default function ForgotPassword() {
         setFormError("If an account matches that email, you’ll receive a reset code shortly. Please wait a moment and try again.");
         return;
       }
+      posthog?.capture("password_reset_requested");
       setStep("code");
     } catch {
       setFormError("We couldn’t connect securely. Check your internet connection and try again.");
@@ -95,6 +98,7 @@ export default function ForgotPassword() {
         if (finalizeError) {
           setFormError(finalizeError.longMessage ?? "Your password was changed, but we couldn’t start your session. Sign in with your new password.");
         } else {
+          posthog?.capture("password_reset_completed");
           router.replace("/(tabs)");
         }
       } else {

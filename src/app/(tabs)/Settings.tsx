@@ -1,6 +1,7 @@
 import { useAuth } from "@clerk/expo";
 import { useState } from "react";
 import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
+import { usePostHog } from "posthog-react-native";
 import { styled } from "nativewind";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 
@@ -8,6 +9,7 @@ const SafeAreaView = styled(RNSafeAreaView);
 
 export default function Settings() {
   const { signOut } = useAuth();
+  const posthog = usePostHog();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   async function handleSignOut() {
@@ -15,6 +17,7 @@ export default function Settings() {
     setIsSigningOut(true);
     try {
       await signOut();
+      posthog?.capture("signed_out");
     } catch {
       Alert.alert("Couldn’t sign out", "Please check your connection and try again.");
       setIsSigningOut(false);
