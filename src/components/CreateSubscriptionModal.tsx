@@ -38,6 +38,31 @@ const CATEGORY_COLORS: Record<(typeof CATEGORIES)[number], string> = {
 
 type Frequency = "Monthly" | "Yearly";
 
+const PLAN_WORDS = new Set([
+  "basic",
+  "business",
+  "family",
+  "monthly",
+  "plan",
+  "premium",
+  "pro",
+  "subscription",
+  "yearly",
+]);
+
+function getIconSearchTerms(value: string) {
+  const withoutParentheticalDetails = value
+    .replace(/\([^)]*\)|\[[^\]]*\]/g, " ")
+    .toLocaleLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  const brandTerms = withoutParentheticalDetails
+    .split(/\s+/)
+    .filter((term) => term && !PLAN_WORDS.has(term));
+
+  return brandTerms.length ? brandTerms : withoutParentheticalDetails.split(/\s+/);
+}
+
 type Props = {
   visible: boolean;
   onClose: () => void;
@@ -67,7 +92,8 @@ export default function CreateSubscriptionModal({
   };
 
   useEffect(() => {
-    const query = name.trim();
+    const queryTerms = getIconSearchTerms(name);
+    const query = queryTerms.join(" ");
     if (!visible || query.length < 2) return;
 
     let isCurrentRequest = true;
@@ -80,18 +106,24 @@ export default function CreateSubscriptionModal({
 
         const result = (await response.json()) as { icons?: string[] };
         if (!isCurrentRequest) return;
-        const recommendations = result.icons ?? [];
+        const recommendations = (result.icons ?? []).sort((first, second) => {
+          const rank = (iconName: string) => {
+            const [prefix, slug = ""] = iconName.split(":");
+            const normalizedSlug = slug.replace(/-/g, " ");
+            const exactMatch = normalizedSlug === query;
+            const matchedTerms = queryTerms.filter((term) => normalizedSlug.includes(term)).length;
+            return (exactMatch ? 100 : 0) + matchedTerms * 10 + (prefix === "simple-icons" ? 2 : 0);
+          };
+
+          return rank(second) - rank(first);
+        });
         setIconSuggestions(recommendations.slice(0, 8));
         if (!recommendations.length) {
           setMatchedIcon(null);
           return;
         }
 
-        const normalizedName = query.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-        const match =
-          recommendations.find((iconName) => iconName.split(":")[1] === normalizedName) ??
-          recommendations[0];
-        setMatchedIcon(iconSource(match));
+        setMatchedIcon(iconSource(recommendations[0]));
       } catch {
         if (isCurrentRequest) {
           setMatchedIcon(null);
@@ -202,7 +234,8 @@ export default function CreateSubscriptionModal({
                 placeholderTextColor="#65728a"
                 accessibilityLabel="Name"
                 autoCapitalize="words"
-                className="auth-input"
+                className="auth-input w-full"
+                style={{ paddingHorizontal: 20 }}
               />
               {iconSuggestions.length > 0 ? (
                 <View className="mt-2 gap-2">
@@ -253,7 +286,8 @@ export default function CreateSubscriptionModal({
                 accessibilityLabel="Price"
                 keyboardType="decimal-pad"
                 inputMode="decimal"
-                className="auth-input"
+                className="auth-input w-full"
+                style={{ paddingHorizontal: 20 }}
               />
             </View>
 

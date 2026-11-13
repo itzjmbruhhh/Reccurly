@@ -16,7 +16,7 @@ export default function SubscriptionIcon({ source, size, className }: Props) {
         className={className}
         style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}
       >
-        <SvgUri uri={source.uri} width={size * 0.72} height={size * 0.72} />
+        <SvgUri uri={source.uri} width={size} height={size} />
       </View>
     );
   }
