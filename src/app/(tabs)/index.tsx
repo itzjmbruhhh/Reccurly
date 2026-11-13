@@ -5,7 +5,6 @@ import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import images from "@/constants/images";
 import {
   HOME_BALANCE,
-  HOME_SUBSCRIPTIONS,
   HOME_USER,
   UPCOMING_SUBSCRIPTIONS,
 } from "@/constants/data";
@@ -16,6 +15,7 @@ import ListHeading from "@/components/ListHeading";
 import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import CreateSubscriptionModal from "@/src/components/CreateSubscriptionModal";
+import { useSubscriptions } from "@/src/components/SubscriptionsProvider";
 import { useState } from "react";
 
 const SafeAreaView = styled(RNSafeAreaView);
@@ -24,7 +24,7 @@ export default function App() {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
-  const [subscriptions, setSubscriptions] = useState(HOME_SUBSCRIPTIONS);
+  const { subscriptions, addSubscription } = useSubscriptions();
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
   return (
@@ -32,12 +32,7 @@ export default function App() {
       <CreateSubscriptionModal
         visible={isCreateModalVisible}
         onClose={() => setIsCreateModalVisible(false)}
-        onCreate={(subscription) =>
-          setSubscriptions((currentSubscriptions) => [
-            subscription,
-            ...currentSubscriptions,
-          ])
-        }
+        onCreate={addSubscription}
       />
       <FlatList
         ListHeaderComponent={() => (

@@ -14,7 +14,7 @@ declare global {
 
   interface Subscription {
     id: string;
-    icon: ImageSourcePropType;
+    icon: ImageSourcePropType | { uri: string; iconify: true };
     name: string;
     plan?: string;
     category?: string;

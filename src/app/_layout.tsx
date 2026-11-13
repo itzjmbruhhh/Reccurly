@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { ActivityIndicator, View } from "react-native";
 import "@/global.css";
 import { posthog, posthogLogger } from "@/lib/posthog";
+import { SubscriptionsProvider } from "@/src/components/SubscriptionsProvider";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -87,9 +88,11 @@ function RootNavigator() {
 
 export default function RootLayout() {
   const app = (
-    <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
-      <RootNavigator />
-    </ClerkProvider>
+    <SubscriptionsProvider>
+      <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
+        <RootNavigator />
+      </ClerkProvider>
+    </SubscriptionsProvider>
   );
 
   return posthog ? <PostHogProvider client={posthog}>{app}</PostHogProvider> : app;

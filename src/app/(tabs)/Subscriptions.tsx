@@ -10,12 +10,13 @@ import {
 import { styled } from "nativewind";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import SubscriptionCard from "@/components/SubscriptionCard";
-import { HOME_SUBSCRIPTIONS } from "@/constants/data";
+import { useSubscriptions } from "@/src/components/SubscriptionsProvider";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 const Subscriptions = () => {
   const [query, setQuery] = useState("");
+  const { subscriptions } = useSubscriptions();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
@@ -23,9 +24,9 @@ const Subscriptions = () => {
   const filteredSubscriptions = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
 
-    if (!normalizedQuery) return HOME_SUBSCRIPTIONS;
+    if (!normalizedQuery) return subscriptions;
 
-    return HOME_SUBSCRIPTIONS.filter((subscription) =>
+    return subscriptions.filter((subscription) =>
       [
         subscription.name,
         subscription.plan,
@@ -35,7 +36,7 @@ const Subscriptions = () => {
         subscription.paymentMethod,
       ].some((value) => value?.toLocaleLowerCase().includes(normalizedQuery)),
     );
-  }, [query]);
+  }, [query, subscriptions]);
 
   return (
     <SafeAreaView className="flex-1 bg-background p-5">

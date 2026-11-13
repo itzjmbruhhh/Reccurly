@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -12,6 +12,7 @@ import {
 import clsx from "clsx";
 import dayjs from "dayjs";
 import { icons } from "@/constants/icons";
+import SubscriptionIcon from "@/src/components/SubscriptionIcon";
 
 const CATEGORIES = [
   "Entertainment",
@@ -54,6 +55,56 @@ export default function CreateSubscriptionModal({
   const [category, setCategory] =
     useState<(typeof CATEGORIES)[number]>("Entertainment");
   const [error, setError] = useState("");
+  const [matchedIcon, setMatchedIcon] = useState<{ uri: string; iconify: true } | null>(null);
+  const [iconSuggestions, setIconSuggestions] = useState<string[]>([]);
+
+  const iconSource = (iconName: string) => {
+    const [prefix, name] = iconName.split(":");
+    return {
+      uri: `https://api.iconify.design/${prefix}/${name}.svg?color=%23081126`,
+      iconify: true as const,
+    };
+  };
+
+  useEffect(() => {
+    const query = name.trim();
+    if (!visible || query.length < 2) return;
+
+    let isCurrentRequest = true;
+    const timeout = setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `https://api.iconify.design/search?query=${encodeURIComponent(query)}&limit=32`,
+        );
+        if (!response.ok) return;
+
+        const result = (await response.json()) as { icons?: string[] };
+        if (!isCurrentRequest) return;
+        const recommendations = result.icons ?? [];
+        setIconSuggestions(recommendations.slice(0, 8));
+        if (!recommendations.length) {
+          setMatchedIcon(null);
+          return;
+        }
+
+        const normalizedName = query.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const match =
+          recommendations.find((iconName) => iconName.split(":")[1] === normalizedName) ??
+          recommendations[0];
+        setMatchedIcon(iconSource(match));
+      } catch {
+        if (isCurrentRequest) {
+          setMatchedIcon(null);
+          setIconSuggestions([]);
+        }
+      }
+    }, 350);
+
+    return () => {
+      isCurrentRequest = false;
+      clearTimeout(timeout);
+    };
+  }, [name, visible]);
 
   const numericPrice = Number(price);
   const isValid = name.trim().length > 0 && Number.isFinite(numericPrice) && numericPrice > 0;
@@ -64,6 +115,8 @@ export default function CreateSubscriptionModal({
     setFrequency("Monthly");
     setCategory("Entertainment");
     setError("");
+    setMatchedIcon(null);
+    setIconSuggestions([]);
   };
 
   const handleSubmit = () => {
@@ -86,7 +139,7 @@ export default function CreateSubscriptionModal({
       status: "active",
       startDate: startDate.toISOString(),
       renewalDate: startDate.add(frequency === "Monthly" ? 1 : 1, frequency === "Monthly" ? "month" : "year").toISOString(),
-      icon: icons.wallet,
+      icon: matchedIcon ?? icons.wallet,
       billing: frequency,
       color: CATEGORY_COLORS[category],
       currency: "PHP",
@@ -134,11 +187,16 @@ export default function CreateSubscriptionModal({
           >
             <View className="auth-field">
               <Text className="auth-label">Name</Text>
+              {matchedIcon ? (
+                <SubscriptionIcon source={matchedIcon} size={48} className="self-start rounded-xl bg-card" />
+              ) : null}
               <TextInput
                 value={name}
                 onChangeText={(value) => {
                   setName(value);
                   setError("");
+                  setMatchedIcon(null);
+                  setIconSuggestions([]);
                 }}
                 placeholder="e.g. Netflix"
                 placeholderTextColor="#65728a"
@@ -146,6 +204,40 @@ export default function CreateSubscriptionModal({
                 autoCapitalize="words"
                 className="auth-input"
               />
+              {iconSuggestions.length > 0 ? (
+                <View className="mt-2 gap-2">
+                  <Text className="auth-helper">Icon suggestions</Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    contentContainerClassName="flex-row gap-2"
+                  >
+                    {iconSuggestions.map((suggestion) => {
+                      const source = iconSource(suggestion);
+                      const selected = matchedIcon?.uri === source.uri;
+                      return (
+                        <Pressable
+                          key={suggestion}
+                          onPress={() => setMatchedIcon(source)}
+                          className={clsx(
+                            "items-center gap-1 rounded-xl border border-border bg-card px-3 py-2",
+                            selected && "border-accent bg-accent/10",
+                          )}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Use ${suggestion.split(":")[1]} icon`}
+                          accessibilityState={{ selected }}
+                        >
+                          <SubscriptionIcon source={source} size={32} />
+                          <Text className="max-w-20 text-center text-xs font-sans-medium text-primary" numberOfLines={1}>
+                            {suggestion.split(":")[1].replaceAll("-", " ")}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              ) : null}
             </View>
 
             <View className="auth-field">
