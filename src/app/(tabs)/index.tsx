@@ -1,5 +1,5 @@
 import "@/global.css";
-import { FlatList, Text, View, Image } from "react-native";
+import { FlatList, Text, View, Image, Pressable } from "react-native";
 import { styled } from "nativewind";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import images from "@/constants/images";
@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import ListHeading from "@/components/ListHeading";
 import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
 import SubscriptionCard from "@/components/SubscriptionCard";
+import CreateSubscriptionModal from "@/src/components/CreateSubscriptionModal";
 import { useState } from "react";
 
 const SafeAreaView = styled(RNSafeAreaView);
@@ -23,8 +24,21 @@ export default function App() {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
+  const [subscriptions, setSubscriptions] = useState(HOME_SUBSCRIPTIONS);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+
   return (
     <SafeAreaView className="flex-1 bg-background p-5">
+      <CreateSubscriptionModal
+        visible={isCreateModalVisible}
+        onClose={() => setIsCreateModalVisible(false)}
+        onCreate={(subscription) =>
+          setSubscriptions((currentSubscriptions) => [
+            subscription,
+            ...currentSubscriptions,
+          ])
+        }
+      />
       <FlatList
         ListHeaderComponent={() => (
           <>
@@ -37,7 +51,14 @@ export default function App() {
               </View>
 
               {/* Add Button Icon */}
-              <Image source={icons.add} className="home-add-icon" />
+              <Pressable
+                onPress={() => setIsCreateModalVisible(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Add subscription"
+                hitSlop={8}
+              >
+                <Image source={icons.add} className="home-add-icon" />
+              </Pressable>
             </View>
 
             {/* Home Balance Card */}
@@ -76,7 +97,7 @@ export default function App() {
             <ListHeading title="All Subscriptions" />
           </>
         )}
-        data={HOME_SUBSCRIPTIONS}
+        data={subscriptions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <SubscriptionCard
