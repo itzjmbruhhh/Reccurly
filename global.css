@@ -118,6 +118,30 @@
         @apply text-lg font-sans font-semibold text-primary;
     }
 
+    .subscriptions-header {
+        @apply mb-5;
+    }
+
+    .subscriptions-title {
+        @apply mb-5 text-2xl font-sans font-bold text-primary;
+    }
+
+    .subscriptions-search {
+        @apply min-h-14 flex-row items-center rounded-2xl border border-border bg-card px-4;
+    }
+
+    .subscriptions-search-icon {
+        @apply mr-3 text-2xl font-sans-medium text-muted-foreground;
+    }
+
+    .subscriptions-search-input {
+        @apply min-w-0 flex-1 py-3 text-base font-sans text-primary;
+    }
+
+    .subscriptions-count {
+        @apply mt-4 text-sm font-sans-medium text-muted-foreground;
+    }
+
     .upcoming-card {
         @apply mr-4 w-44 rounded-2xl border border-black/10 bg-background p-4;
     }

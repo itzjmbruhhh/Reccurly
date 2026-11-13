@@ -51,6 +51,7 @@ const TabLayout = () => {
           name={tab.name}
           options={{
             title: tab.title,
+            tabBarHideOnKeyboard: tab.name === "Subscriptions",
             tabBarIcon: ({ focused }) => (
               <TabIcon focused={focused} icon={tab.icon} />
             ),

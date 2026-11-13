@@ -1,5 +1,6 @@
-import { View, Text, Image, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import React from "react";
+import SubscriptionIcon from "@/src/components/SubscriptionIcon";
 import {
   formatCurrency,
   formatStatusLabel,
@@ -31,7 +32,7 @@ const SubscriptionCard = ({
     >
       <View className="sub-head">
         <View className="sub-main">
-          <Image source={icon} className="sub-icon" />
+          <SubscriptionIcon source={icon} size={64} className="sub-icon" />
           <View className="sub-copy">
             <Text numberOfLines={1} className="sub-title">
               {name}
