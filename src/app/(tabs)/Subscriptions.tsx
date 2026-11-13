@@ -1,15 +1,103 @@
-import { Text } from 'react-native'
+import { useMemo, useState } from "react";
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { styled } from "nativewind";
 import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
+import SubscriptionCard from "@/components/SubscriptionCard";
+import { HOME_SUBSCRIPTIONS } from "@/constants/data";
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 const Subscriptions = () => {
-  return (
-    <SafeAreaView className="flex-1 bg-background p-5">
-      <Text>Subscriptions</Text>
-    </SafeAreaView>
-  )
-}
+  const [query, setQuery] = useState("");
+  const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
+    string | null
+  >(null);
 
-export default Subscriptions
+  const filteredSubscriptions = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+
+    if (!normalizedQuery) return HOME_SUBSCRIPTIONS;
+
+    return HOME_SUBSCRIPTIONS.filter((subscription) =>
+      [
+        subscription.name,
+        subscription.plan,
+        subscription.category,
+        subscription.billing,
+        subscription.status,
+        subscription.paymentMethod,
+      ].some((value) => value?.toLocaleLowerCase().includes(normalizedQuery)),
+    );
+  }, [query]);
+
+  return (
+    <KeyboardAvoidingView behavior="padding" className="flex-1">
+      <SafeAreaView className="flex-1 bg-background p-5">
+        <FlatList
+        style={{ width: "100%", maxWidth: 600, alignSelf: "center" }}
+        data={filteredSubscriptions}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <SubscriptionCard
+            {...item}
+            expanded={expandedSubscriptionId === item.id}
+            onPress={() =>
+              setExpandedSubscriptionId((currentId) =>
+                currentId === item.id ? null : item.id,
+              )
+            }
+          />
+        )}
+        extraData={expandedSubscriptionId}
+        ItemSeparatorComponent={() => <View className="h-4" />}
+        ListHeaderComponent={
+          <View className="subscriptions-header">
+            <Text className="subscriptions-title">Subscriptions</Text>
+            <View className="subscriptions-search">
+              <Text className="subscriptions-search-icon" accessibilityLabel="Search">
+                ⌕
+              </Text>
+              <TextInput
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Search subscriptions"
+                placeholderTextColor="rgba(8, 17, 38, 0.5)"
+                accessibilityLabel="Search subscriptions"
+                returnKeyType="search"
+                autoCapitalize="none"
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+                className="subscriptions-search-input"
+              />
+            </View>
+            <Text className="subscriptions-count">
+              {filteredSubscriptions.length}{" "}
+              {filteredSubscriptions.length === 1
+                ? "subscription"
+                : "subscriptions"}
+            </Text>
+          </View>
+        }
+        ListEmptyComponent={
+          <Text className="home-empty-state">
+            {query.trim()
+              ? `No subscriptions found for “${query.trim()}”.`
+              : "No subscriptions yet."}
+          </Text>
+        }
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-30"
+        />
+      </SafeAreaView>
+    </KeyboardAvoidingView>
+  );
+};
+
+export default Subscriptions;
